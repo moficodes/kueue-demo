@@ -74,7 +74,7 @@ metadata:
   labels:
     kueue.x-k8s.io/queue-name: user-queue
 spec:
-  ttlSecondsAfterFinished: 240
+  ttlSecondsAfterFinished: 60
   parallelism: 20
   completions: 20
   completionMode: Indexed
@@ -98,7 +98,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: "1200Mi" # choose the value as 75% * (total allocatable memory / 20)
+            memory: "900Mi" # choose the value as 75% * (total allocatable memory / 20)
         volumeMounts:
           - mountPath: /script-path
             name: script-volume

@@ -99,3 +99,34 @@ while true; do kubectl create -f job-2-spot-lq.yaml; sleep 4; done
 
 We can see that the spot jobs are taking priority over the on demand jobs.
 
+## All or nothing scheduling
+
+There are certain workloads that requires all of its pods to be scheduled before work can begin. In Kueue we can have it setup to do all or nothing scheduling. At this time its a global setting. So if you have kueue installed with this configuration it is all-or-nothing for all workload.
+
+Without all or nothing scheduling we can end up in a situation where we hit deadlock. Where we have 2 jobs that are waiting for each other to finish before they can start. This is a common problem in distributed systems.
+
+```bash
+./deadlock.sh
+```
+
+```bash
+kubectl apply -f configmap.yaml
+```
+
+Delete the existing kueue controller so the new changes are picked up.
+
+```bash
+kubectl delete po -n kueue-system --all
+```
+
+After the controller is up and running we can try to recreate the deadlock again. This time we will see that the deadlock is resolved.
+
+```bash
+./deadlock.sh
+``` 
+
+## Cleanup
+
+```bash
+gcloud container clusters delete kueue --zone us-central1-c
+```
