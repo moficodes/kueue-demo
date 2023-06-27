@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: quick-job
+  annotations:
+    kueue.x-k8s.io/queue-name: user-queue
+spec:
+  ttlSecondsAfterFinished: 15
+  parallelism: 50
+  completions: 50
+  suspend: true
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: sleep
+        image: bash:5
+        command: ["bash"]
+        args: ["-c", 'echo "Hello world"']
+        resources:
+          requests:
+            memory: "1Mi"
+  backoffLimit: 0

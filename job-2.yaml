@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-2
+  annotations:
+    kueue.x-k8s.io/queue-name: user-queue
+spec:
+  ttlSecondsAfterFinished: 30
+  parallelism: 20
+  completions: 20
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: sleep
+        image: bash:5
+        command: ["sleep"]
+        args: ["10"]
+        resources:
+          requests:
+            memory: "1Gi"
+  backoffLimit: 0

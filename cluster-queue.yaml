@@ -1,0 +1,33 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "on-demand-cq"
+spec:
+  cohort: "workload"
+  namespaceSelector: {}
+  resourceGroups:
+  - coveredResources: ["memory", "cpu"]
+    flavors:
+    - name: "on-demand"
+      resources:
+      - name: "memory"
+        nominalQuota: 16Gi # double the value of allocatable memory in the cluster     
+      - name: "cpu"
+        nominalQuota: 4
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "spot-cq"
+spec:
+  cohort: "workload"
+  namespaceSelector: {}
+  resourceGroups:
+  - coveredResources: ["memory", "cpu"]
+    flavors:
+    - name: "spot"
+      resources:
+      - name: "memory"
+        nominalQuota: 16Gi # double the value of allocatable memory in the cluster     
+      - name: "cpu"
+        nominalQuota: 4

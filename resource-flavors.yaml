@@ -1,0 +1,15 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ResourceFlavor
+metadata:
+  name: "spot"
+spec:
+  nodeLabels:
+    "cloud.google.com/gke-provisioning": "spot"
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ResourceFlavor
+metadata:
+  name: "on-demand"
+spec:
+  nodeLabels:
+    "cloud.google.com/gke-provisioning": "standard"

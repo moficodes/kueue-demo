@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kueue-manager-config
+  namespace: kueue-system
+data:
+  controller_manager_config.yaml: |
+    apiVersion: config.kueue.x-k8s.io/v1beta1
+    kind: Configuration
+    namespace: kueue-system
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: :8080
+    webhook:
+      port: 9443
+    manageJobsWithoutQueueName: true
+    internalCertManagement:
+      enable: true
+      webhookServiceName: kueue-webhook-service
+      webhookSecretName: kueue-webhook-server-cert
+    waitForPodsReady:
+      enable: true
+      timeout: 10m

@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-1
+  annotations:
+    kueue.x-k8s.io/queue-name: spot-lq
+spec:
+  ttlSecondsAfterFinished: 60
+  parallelism: 20
+  completions: 20
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: sleep
+        image: bash:5
+        command: ["sleep"]
+        args: ["30"]
+        resources:
+          requests:
+            memory: "800Mi"
+  backoffLimit: 0

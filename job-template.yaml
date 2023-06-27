@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc_ID_
+spec:
+  clusterIP: None
+  selector:
+    job-name: job_ID_
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: script-code_ID_
+data:
+  main.py: |
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from urllib.request import urlopen
+    import sys, os, time, logging
+
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    serverPort = 8080
+    INDEX_COUNT = int(sys.argv[1])
+    index = int(os.environ.get('JOB_COMPLETION_INDEX'))
+    logger = logging.getLogger('LOG' + str(index))
+
+    class WorkerServer(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            if "exit" in self.path:
+              self.wfile.write(bytes("Exiting", "utf-8"))
+              self.wfile.close()
+              sys.exit(0)
+            else:
+              self.wfile.write(bytes("Running", "utf-8"))
+
+    def call_until_success(url):
+      while True:
+        try:
+          logger.info("Calling URL: " + url)
+          with urlopen(url) as response:
+            response_content = response.read().decode('utf-8')
+            logger.info("Response content from %s: %s" % (url, response_content))
+            return
+        except Exception as e:
+          logger.warning("Got exception when calling %s: %s" % (url, e))
+        time.sleep(1)
+
+    if __name__ == "__main__":
+      if index == 0:
+        for i in range(1, INDEX_COUNT):
+          call_until_success("http://job_ID_-%d.svc_ID_:8080/ping" % i)
+        logger.info("All workers running")
+
+        time.sleep(10) # sleep 10s to simulate doing something
+
+        for i in range(1, INDEX_COUNT):
+          call_until_success("http://job_ID_-%d.svc_ID_:8080/exit" % i)
+        logger.info("All workers stopped")
+      else:
+        webServer = HTTPServer(("", serverPort), WorkerServer)
+        logger.info("Server started at port %s" % serverPort)
+        webServer.serve_forever()    
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job_ID_
+  labels:
+    kueue.x-k8s.io/queue-name: user-queue
+spec:
+  parallelism: 20
+  completions: 20
+  completionMode: Indexed
+  suspend: true
+  template:
+    spec:
+      subdomain: svc_ID_
+      volumes:
+      - name: script-volume
+        configMap:
+          name: script-code_ID_
+      containers:
+      - name: main
+        image: python:bullseye
+        command: ["python"]
+        args:
+        - /script-path/main.py
+        - "20"
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "2Gi" # choose the value as 75% * (total allocatable memory / 20)
+        volumeMounts:
+          - mountPath: /script-path
+            name: script-volume
+      restartPolicy: Never
+  backoffLimit: 0
