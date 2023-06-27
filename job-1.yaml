@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-1
+  generateName: job-1-
   annotations:
     kueue.x-k8s.io/queue-name: user-queue
 spec:

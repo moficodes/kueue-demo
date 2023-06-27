@@ -98,7 +98,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests:
-            memory: "800Mi" # choose the value as 75% * (total allocatable memory / 20)
+            memory: "1200Mi" # choose the value as 75% * (total allocatable memory / 20)
         volumeMounts:
           - mountPath: /script-path
             name: script-volume

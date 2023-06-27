@@ -3,6 +3,7 @@ kind: ClusterQueue
 metadata:
   name: "on-demand-cq"
 spec:
+  cohort: "workload"
   namespaceSelector: {}
   resourceGroups:
   - coveredResources: ["memory", "cpu"]
@@ -13,12 +14,19 @@ spec:
         nominalQuota: 16Gi # double the value of allocatable memory in the cluster     
       - name: "cpu"
         nominalQuota: 4
+    - name: "spot"
+      resources:
+      - name: "memory"
+        nominalQuota: 0 # double the value of allocatable memory in the cluster     
+      - name: "cpu"
+        nominalQuota: 0
 ---
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
   name: "spot-cq"
 spec:
+  cohort: "workload"
   namespaceSelector: {}
   resourceGroups:
   - coveredResources: ["memory", "cpu"]
@@ -29,3 +37,9 @@ spec:
         nominalQuota: 16Gi # double the value of allocatable memory in the cluster     
       - name: "cpu"
         nominalQuota: 4
+    - name: "on-demand"
+      resources:
+      - name: "memory"
+        nominalQuota: 0 # double the value of allocatable memory in the cluster     
+      - name: "cpu"
+        nominalQuota: 0

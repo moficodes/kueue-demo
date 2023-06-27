@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-2
+  generateName: job-2-
   annotations:
     kueue.x-k8s.io/queue-name: on-demand-lq
 spec:
   ttlSecondsAfterFinished: 60
-  parallelism: 20
-  completions: 20
+  parallelism: 5
+  completions: 5
   template:
     spec:
       restartPolicy: Never
@@ -15,8 +15,8 @@ spec:
       - name: sleep
         image: bash:5
         command: ["sleep"]
-        args: ["30"]
+        args: ["5"]
         resources:
           requests:
-            memory: "800Mi"
+            memory: "600Mi"
   backoffLimit: 0
